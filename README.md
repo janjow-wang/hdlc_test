@@ -37,6 +37,7 @@ read:
 - 開頭可以處理多個start flag(0x7E)，找到真正的payload起點，在開始de-stuffing
 - 以bit為單位發送的話，fcs會接著end flag(0x7e)，表示padding 0是做在0x7e後面
 - 0x7e的偵測是一直在做，payload start之後看到的第一個0x7e就是end flag
+  這裡有個特別的點，看到payload會往回倒退1 byte，這樣可以避免2 pass處理整個test_frame
 - 打印出來payload後清空變數，會繼續偵測start flag，繼續處理後面的frame
 - 測試過故意把test_frame(整串)往右shift(故意打破byte align)，也能正確印出payload
 
