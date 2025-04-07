@@ -22,7 +22,7 @@ read:
 
 釐清中
 
-gemini找到看起來可行的做法:
+# gemini找到看起來可行的做法:
 - 發送與接收都以bit為單位
 - 對發送端，Stuffed [Address + Control + Information + FCS] 若不在byte align，那padding 0 就做在結束的FLAG後面
 - 對接收端
@@ -32,4 +32,11 @@ gemini找到看起來可行的做法:
   - 一旦檢測到這個未經 de-stuffing 的 Flag ，就確認當前幀的數據部分接收完畢（0x7E後面的padding 0丟棄）
 - 以這個思路，看起來餵進de-stuffing的資料可以從頭到尾都丟進去，在裡面處理，ongoing
 
+# 對read來說，這個方式可以達到一些目標
+- 接收以bit為單位不再以byte為單位
+- 開頭可以處理多個start flag(0x7E)，找到真正的payload起點，在開始de-stuffing
+- 以bit為單位發送的話，fcs會接著end flag(0x7e)，表示padding 0是做在0x7e後面
+- 0x7e的偵測是一直在做，payload start之後看到的第一個0x7e就是end flag
+- 打印出來payload後清空變數，會繼續偵測start flag，繼續處理後面的frame
+- 測試過故意把test_frame(整串)往右shift(故意打破byte align)，也能正確印出payload
 
