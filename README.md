@@ -38,6 +38,12 @@ read:
 - 以bit為單位發送的話，fcs會接著end flag(0x7e)，表示padding 0是做在0x7e後面
 - 0x7e的偵測是一直在做，payload start之後看到的第一個0x7e就是end flag
 - 這裡有個點，start flag拉起來後看到非0x7e(payload)會往回倒退1 byte，這樣可以避免2 pass處理整個test_frame
-- 打印出來payload後清空變數，會繼續偵測start flag，重複上面的flow，繼續處理後面的frame
+- 打印出來payload後清空變數，會繼續偵測start flag，重複上面的flow，繼續處理後面的frame，0x7e後面幾個padding bit會被當作找頭的無意義bit
 - 故意把test_frame(整串)往右shift(故意打破byte align)，也能正確印出payload
 
+# 對write
+- test pattern設計多個frame連續輸出
+- 頭之前的0x7e可選擇個數
+- 尾巴0x7e可選擇是否要padding 0
+
+ongoing
