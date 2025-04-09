@@ -21,8 +21,8 @@ uint16_t crc16_ccitt(const uint8_t *data, size_t len) {
     return crc;
 }
 
-// Bit Destuffing 
-size_t bit_destuff(uint8_t *dest, uint8_t *src, size_t len) {
+void read_hdlc_frame(uint8_t *src, size_t len) {
+    uint8_t dest[MAX_FRAME_SIZE];
     size_t dest_index = 0;
     int bit_count = 0;
     uint8_t current_byte = 0;
@@ -39,12 +39,10 @@ size_t bit_destuff(uint8_t *dest, uint8_t *src, size_t len) {
     int j = 0;
     bool bit = 0;
     for (i = 0; i < len; i++) {
-        // if (i == 14){
-        //     printf("i=%d 0x%02x\n", i, src[i]);
-        // }
         for (j = 7; j >= 0; j--) { // 逐 bit 檢查
             bit = (src[i] >> j) & 1;
 
+            //stage 1:skip dummy start flag, find real start flag
             org_byte = (org_byte << 1) | bit;
 
             if (skip_bit_force) //use to test !byte_align case
@@ -118,6 +116,7 @@ size_t bit_destuff(uint8_t *dest, uint8_t *src, size_t len) {
                 }
             }
 
+            //stage 2:do de-stuffing flow
             // **檢查是否需要去除 stuffing bit**
             if (bit_count == 5) {
                 if (!bit) {  // **如果是 stuffing `0`，跳過它**
@@ -158,15 +157,8 @@ size_t bit_destuff(uint8_t *dest, uint8_t *src, size_t len) {
     return dest_index;
 }
 
-// 解析 HDLC Frame
-void read_hdlc_frame(uint8_t *frame, size_t len) {
-    uint8_t destuffed_frame[MAX_FRAME_SIZE];
-    size_t destuffed_len = bit_destuff(destuffed_frame, frame, len);
-}
-
-
-// int app_main() { // for esp32
-int main() { // for gcc
+int app_main() { // for esp32
+// int main() { // for gcc
 
     // org data : 01 03 AA BB CC DD EE FF 9A FD
     // uint8_t test_frame[] = {0x7E, 0x01, 0x03, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFB, 0xCD, 0x7D, 0x5F, 0x80}; // 帶有比特填充的資料
