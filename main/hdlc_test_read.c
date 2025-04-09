@@ -29,7 +29,6 @@ void read_hdlc_frame(uint8_t *src, size_t len) {
     int bit_pos = 0; // current collected bits
 
     bool start_flag_found = 0;
-    bool end_flag_found = 0;
     bool payload_found = 0;
     uint8_t org_byte = 0;
     int skip_bit = 0;
@@ -59,6 +58,7 @@ void read_hdlc_frame(uint8_t *src, size_t len) {
 
             if (org_byte == HDLC_FLAG)
             {
+                // end flag found, process payload content here
                 if (payload_found == true)
                 {
                     // 檢查 FCS
@@ -86,7 +86,7 @@ void read_hdlc_frame(uint8_t *src, size_t len) {
                     continue;
                 }
 
-                // if (start_flag_found == false)
+                // start flag found, might not be the read one, need payload_found to be set 
                 {
                     org_byte = 0;
                     start_flag_found = true;
@@ -154,7 +154,7 @@ void read_hdlc_frame(uint8_t *src, size_t len) {
     //     dest[dest_index++] = current_byte;
     // }
 
-    return dest_index;
+    return;
 }
 
 int app_main() { // for esp32
