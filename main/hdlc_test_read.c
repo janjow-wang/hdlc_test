@@ -164,8 +164,9 @@ void read_hdlc_frame(uint8_t *frame, size_t len) {
     size_t destuffed_len = bit_destuff(destuffed_frame, frame, len);
 }
 
-int app_main() { // for esp32
-// int main() { // for gcc
+
+// int app_main() { // for esp32
+int main() { // for gcc
 
     // org data : 01 03 AA BB CC DD EE FF 9A FD
     // uint8_t test_frame[] = {0x7E, 0x01, 0x03, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFB, 0xCD, 0x7D, 0x5F, 0x80}; // 帶有比特填充的資料
