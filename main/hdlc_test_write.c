@@ -59,6 +59,22 @@ size_t bit_stuff(uint8_t *dest, uint8_t *src, size_t len) {
             }
         }
     }
+    
+    // append end flag here, do padding after 0x7e
+    for (j = 7; j >= 0; j--) { // 逐 bit 檢查
+        bit = (HDLC_FLAG >> j) & 1;
+        current_byte = (current_byte << 1) | bit;
+        bit_pos++;
+
+        // skip bit stuff for end flag 0x7e
+
+        // **滿 8 bit，存入 `dest`**
+        if (bit_pos == 8) {
+            dest[dest_index++] = current_byte;
+            bit_pos = 0;
+            current_byte = 0;
+        }
+    }
 
     // **處理最後不足 8 bit 的數據**
     if (bit_pos > 0) {
@@ -101,13 +117,13 @@ void write_hdlc_frame(uint8_t *frame, size_t len) {
     for (size_t i = 0; i < stuffed_len; i++) {
         printf("0x%02X, ", stuffed_frame[i]);
     }
-    printf("0x%02X, ", HDLC_FLAG);
-    printf("\n");
+    // printf("0x%02X, ", HDLC_FLAG); // output in bit_stuff function
+    printf("\n\n");
 }
 
 // org data  : 0x01, 0x03, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00, 0x00, 
 // fcsed data: 0x01, 0x03, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x9A, 0xFD,
-// hdlc data : 0x7E, 0x01, 0x03, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFB, 0xCD, 0x7D, 0x40, 0x7E, 
+// hdlc data : 0x7E, 0x01, 0x03, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFB, 0xCD, 0x7D, 0x5F, 0x80, 
 int app_main() {
 
     // addr    0x1
@@ -122,6 +138,7 @@ int app_main() {
     }
     printf("\n");
 
+    write_hdlc_frame(test_frame, sizeof(test_frame));
     write_hdlc_frame(test_frame, sizeof(test_frame));
 
     return 0;
